@@ -57,7 +57,7 @@ export function CameraPermission({
         </View>
         <Text style={styles.title}>Camera access needed</Text>
         <Text style={styles.copy}>
-          SnapFix uses your camera to capture a clear view of the device you want to inspect.
+          FixiT uses your camera to capture a clear view of the device you want to inspect.
         </Text>
         <Pressable
           accessibilityLabel={actionLabel}

@@ -1,6 +1,6 @@
 import { appConfig } from '../../config/env';
 import { DeviceDiagnosis, FollowUpMessage } from '../../types/diagnosis';
-import { apiClient, SnapFixApiError, toApiError } from './client';
+import { apiClient, FixiTApiError, toApiError } from './client';
 
 type FollowUpResponse = {
   answer: string;
@@ -13,8 +13,8 @@ export async function requestFollowUp(
   signal: AbortSignal,
 ): Promise<string> {
   if (!appConfig.apiBaseUrl) {
-    throw new SnapFixApiError(
-      'SnapFix is not connected to an analysis server. Set EXPO_PUBLIC_API_URL and restart Expo.',
+    throw new FixiTApiError(
+      'FixiT is not connected to an analysis server. Set EXPO_PUBLIC_API_URL and restart Expo.',
       'API_NOT_CONFIGURED',
     );
   }
@@ -31,15 +31,15 @@ export async function requestFollowUp(
     );
 
     if (!isFollowUpResponse(response.data)) {
-      throw new SnapFixApiError(
-        'SnapFix received an invalid follow-up response. Please try again.',
+      throw new FixiTApiError(
+        'FixiT received an invalid follow-up response. Please try again.',
         'INVALID_API_RESPONSE',
       );
     }
 
     return response.data.answer;
   } catch (error) {
-    if (error instanceof SnapFixApiError) {
+    if (error instanceof FixiTApiError) {
       throw error;
     }
 

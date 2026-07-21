@@ -24,7 +24,7 @@ export const diagnosisHighlightSchema = z
     }
   });
 
-/** The application contract returned to the SnapFix client. */
+/** The application contract returned to the FixiT client. */
 export const diagnosisResponseSchema = z
   .object({
     device: shortText,

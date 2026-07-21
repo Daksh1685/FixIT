@@ -10,14 +10,14 @@ export const apiClient = axios.create({
   timeout: 45_000,
 });
 
-export class SnapFixApiError extends Error {
+export class FixiTApiError extends Error {
   constructor(
     message: string,
     public readonly code?: string,
     public readonly status?: number,
   ) {
     super(message);
-    this.name = 'SnapFixApiError';
+    this.name = 'FixiTApiError';
   }
 }
 
@@ -25,8 +25,8 @@ export function isRequestCancelled(error: unknown): boolean {
   return axios.isCancel(error) || (axios.isAxiosError(error) && error.code === 'ERR_CANCELED');
 }
 
-export function toApiError(error: unknown): SnapFixApiError {
-  if (error instanceof SnapFixApiError) {
+export function toApiError(error: unknown): FixiTApiError {
+  if (error instanceof FixiTApiError) {
     return error;
   }
 
@@ -34,14 +34,14 @@ export function toApiError(error: unknown): SnapFixApiError {
     const payload = error.response?.data;
     const apiError = isApiErrorPayload(payload) ? payload.error : undefined;
 
-    return new SnapFixApiError(
-      apiError?.message ?? 'We could not reach SnapFix. Check your connection and try again.',
+    return new FixiTApiError(
+      apiError?.message ?? 'We could not reach FixiT. Check your connection and try again.',
       apiError?.code,
       error.response?.status,
     );
   }
 
-  return new SnapFixApiError('We could not analyze this image. Please try again.');
+  return new FixiTApiError('We could not analyze this image. Please try again.');
 }
 
 type ApiErrorPayload = {

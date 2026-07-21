@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "SnapFix",
+    "name": "FixiT",
     "slug": "snapfix",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -26,7 +26,7 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow SnapFix to use your camera to inspect a device.",
+          "cameraPermission": "Allow FixiT to use your camera to inspect a device.",
           "microphonePermission": false,
           "recordAudioAndroid": false,
           "barcodeScannerEnabled": false
@@ -35,7 +35,7 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Allow SnapFix to access your photos so you can inspect a device image."
+          "photosPermission": "Allow FixiT to access your photos so you can inspect a device image."
         }
       ],
       "expo-status-bar"

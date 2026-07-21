@@ -7,7 +7,7 @@ import {
   ImageAnalysisResult,
 } from '../../types/diagnosis';
 import { ScanImage } from '../../types/scan';
-import { apiClient, SnapFixApiError, toApiError } from './client';
+import { apiClient, FixiTApiError, toApiError } from './client';
 
 const CONFIDENCE_VALUES: DiagnosisConfidence[] = ['medium', 'high'];
 
@@ -16,8 +16,8 @@ export async function requestDiagnosis(
   signal: AbortSignal,
 ): Promise<ImageAnalysisResult> {
   if (!appConfig.apiBaseUrl) {
-    throw new SnapFixApiError(
-      'SnapFix is not connected to an analysis server. Set EXPO_PUBLIC_API_URL and restart Expo.',
+    throw new FixiTApiError(
+      'FixiT is not connected to an analysis server. Set EXPO_PUBLIC_API_URL and restart Expo.',
       'API_NOT_CONFIGURED',
     );
   }
@@ -26,7 +26,7 @@ export async function requestDiagnosis(
   formData.append(
     'image',
     {
-      name: image.fileName ?? `snapfix-${image.source}.jpg`,
+      name: image.fileName ?? `fixit-${image.source}.jpg`,
       type: image.mimeType ?? 'image/jpeg',
       uri: image.uri,
     } as unknown as Blob,
@@ -39,15 +39,15 @@ export async function requestDiagnosis(
     });
 
     if (!isImageAnalysisResult(response.data)) {
-      throw new SnapFixApiError(
-        'SnapFix received an invalid diagnosis response. Please try again.',
+      throw new FixiTApiError(
+        'FixiT received an invalid diagnosis response. Please try again.',
         'INVALID_API_RESPONSE',
       );
     }
 
     return response.data;
   } catch (error) {
-    if (error instanceof SnapFixApiError) {
+    if (error instanceof FixiTApiError) {
       throw error;
     }
 

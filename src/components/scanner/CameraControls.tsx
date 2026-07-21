@@ -65,7 +65,7 @@ export function CameraControls({
       <Animated.View style={[styles.header, headerStyle]}>
         <View style={styles.brandLockup}>
           <View style={styles.mark} />
-          <Text style={styles.brand}>SNAPFIX</Text>
+          <Text style={styles.brand}>FixiT</Text>
         </View>
         <IconCircleButton
           accessibilityLabel="Choose a photo from your library"

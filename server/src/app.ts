@@ -10,7 +10,7 @@ export function createApp() {
   app.use(express.json({ limit: '1mb' }));
 
   app.get('/', (_request, response) => {
-    response.status(200).json({ service: 'SnapFix API', status: 'ok' });
+    response.status(200).json({ service: 'FixiT API', status: 'ok' });
   });
 
   app.get('/health', (_request, response) => {

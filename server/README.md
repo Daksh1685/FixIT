@@ -1,4 +1,4 @@
-# SnapFix API
+# FixiT API
 
 TypeScript Express service for visual device diagnosis. It accepts one uploaded image, normalizes it with Sharp before inference, and calls the Gemini API with structured JSON output. The model response is then parsed and validated with Zod before it is returned to the client.
 

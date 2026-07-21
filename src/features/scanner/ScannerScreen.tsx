@@ -46,7 +46,7 @@ export function ScannerScreen() {
       const photo = await cameraRef.current.takePictureAsync({ quality: 0.9 });
       if (photo?.uri) {
         setCapturedImage({
-          fileName: 'snapfix-capture.jpg',
+          fileName: 'fixit-capture.jpg',
           height: photo.height,
           mimeType: 'image/jpeg',
           source: 'camera',
