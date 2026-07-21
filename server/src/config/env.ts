@@ -13,6 +13,6 @@ const parsePort = (value: string | undefined): number => {
 
 export const env = {
   geminiApiKey: process.env.GEMINI_API_KEY?.trim(),
-  geminiModel: process.env.GEMINI_MODEL?.trim() || 'gemini-2.5-flash',
+  geminiModel: process.env.GEMINI_MODEL?.trim() || 'gemini-3.5-flash',
   port: parsePort(process.env.PORT),
 };
