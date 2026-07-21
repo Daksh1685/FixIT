@@ -38,7 +38,15 @@
           "photosPermission": "Allow FixiT to access your photos so you can inspect a device image."
         }
       ],
-      "expo-status-bar"
+      "expo-status-bar",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#050806",
+          "image": "./assets/fixit-splash.png",
+          "resizeMode": "cover"
+        }
+      ]
     ],
     "extra": {
       "eas": {
