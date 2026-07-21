@@ -2,6 +2,7 @@ import { env } from '../config/env.js';
 import { HttpError } from '../errors/http-error.js';
 import { DEVICE_DIAGNOSIS_SYSTEM_PROMPT } from '../prompts/diagnosis.prompt.js';
 import {
+  diagnosisJsonSchema,
   diagnosisResponseSchema,
   type DiagnosisResponse,
 } from '../schemas/diagnosis.schema.js';
@@ -21,28 +22,63 @@ function asText(value: unknown, fallback: string, maxLength: number): string {
 }
 
 function asTextList(value: unknown, maxItems: number): string[] {
-  if (!Array.isArray(value)) {
-    return [];
-  }
+  const values = Array.isArray(value) ? value : typeof value === 'string' ? [value] : [];
 
-  return value
+  return values
     .filter((item): item is string => typeof item === 'string' && Boolean(item.trim()))
     .map((item) => item.trim().slice(0, 500))
     .slice(0, maxItems);
 }
 
-function clamp(value: unknown, fallback: number): number {
-  return typeof value === 'number' && Number.isFinite(value)
-    ? Math.min(1, Math.max(0, value))
-    : fallback;
+function asNormalizedCoordinate(value: unknown, fallback: number): number {
+  const numericValue =
+    typeof value === 'number'
+      ? value
+      : typeof value === 'string'
+        ? Number.parseFloat(value.replace('%', ''))
+        : Number.NaN;
+
+  if (!Number.isFinite(numericValue)) {
+    return fallback;
+  }
+
+  const normalizedValue = numericValue > 1 ? numericValue / 100 : numericValue;
+  return Math.min(1, Math.max(0, normalizedValue));
+}
+
+function parseJsonObject(output: string): unknown {
+  const trimmed = output.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
+
+  try {
+    return JSON.parse(trimmed);
+  } catch {
+    const firstBrace = trimmed.indexOf('{');
+    const lastBrace = trimmed.lastIndexOf('}');
+
+    if (firstBrace === -1 || lastBrace <= firstBrace) {
+      throw new HttpError(502, 'INVALID_MODEL_RESPONSE', 'The diagnosis service returned an invalid response.');
+    }
+
+    try {
+      return JSON.parse(trimmed.slice(firstBrace, lastBrace + 1));
+    } catch {
+      throw new HttpError(502, 'INVALID_MODEL_RESPONSE', 'The diagnosis service returned an invalid response.');
+    }
+  }
 }
 
 function normalizeHighlight(value: unknown): DiagnosisResponse['highlight'] {
   const highlight = asRecord(value);
-  const x = clamp(highlight?.x, 0.25);
-  const y = clamp(highlight?.y, 0.25);
-  const width = Math.min(Math.max(clamp(highlight?.width, 0.5), 0.01), 1 - x);
-  const height = Math.min(Math.max(clamp(highlight?.height, 0.5), 0.01), 1 - y);
+  const x = Math.min(asNormalizedCoordinate(highlight?.x, 0.25), 0.98);
+  const y = Math.min(asNormalizedCoordinate(highlight?.y, 0.25), 0.98);
+  const width = Math.min(
+    Math.max(asNormalizedCoordinate(highlight?.width, 0.5), 0.01),
+    1 - x,
+  );
+  const height = Math.min(
+    Math.max(asNormalizedCoordinate(highlight?.height, 0.5), 0.01),
+    1 - y,
+  );
 
   return {
     x,
@@ -54,15 +90,7 @@ function normalizeHighlight(value: unknown): DiagnosisResponse['highlight'] {
 }
 
 function parseDiagnosis(output: string): DiagnosisResponse {
-  let json: unknown;
-
-  try {
-    json = JSON.parse(output);
-  } catch {
-    throw new HttpError(502, 'INVALID_MODEL_RESPONSE', 'The diagnosis service returned an invalid response.');
-  }
-
-  const source = asRecord(json);
+  const source = asRecord(parseJsonObject(output));
   if (!source) {
     throw new HttpError(502, 'INVALID_MODEL_RESPONSE', 'The diagnosis service returned an invalid response.');
   }
@@ -122,6 +150,7 @@ export async function diagnoseDevice(uploadedImage: Buffer): Promise<DiagnosisRe
         'Inspect this device image and return the requested diagnosis JSON.',
       ),
       config: {
+        responseJsonSchema: diagnosisJsonSchema,
         responseMimeType: 'application/json',
         systemInstruction: DEVICE_DIAGNOSIS_SYSTEM_PROMPT,
         temperature: 0,
