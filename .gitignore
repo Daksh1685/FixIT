@@ -1,0 +1,36 @@
+# Expo
+.expo/
+dist/
+web-build/
+
+# Dependencies
+node_modules/
+
+# Native credentials
+*.keystore
+*.jks
+*.p8
+*.p12
+*.pem
+*.key
+*.mobileprovision
+
+# API keys and cloud credentials
+.npmrc
+.credentials/
+credentials.json
+service-account*.json
+google-service-account*.json
+
+# Miscellaneous
+.DS_Store
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# Server secrets and build output
+server/.env
+server/dist/
+.env
+.env.*
+!.env.example
