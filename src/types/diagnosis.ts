@@ -1,10 +1,12 @@
 export type DiagnosisConfidence = 'medium' | 'high';
+export type DiagnosisFinding = 'issue_found' | 'no_issue_visible';
 
 export type DeviceDiagnosis = {
   brand: string;
   causes: string[];
   confidence: DiagnosisConfidence;
   device: string;
+  finding: DiagnosisFinding;
   fix_steps: string[];
   highlight: DiagnosisHighlight;
   issue: string;

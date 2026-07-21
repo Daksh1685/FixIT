@@ -53,7 +53,7 @@ export function ImagePreview({ diagnosisState, image, onResume, onRetry }: Image
         style={[styles.image, imageStyle]}
       />
       <View pointerEvents="none" style={styles.scrim} />
-      {diagnosisState.status === 'success' ? (
+      {diagnosisState.status === 'success' && diagnosisState.diagnosis.finding === 'issue_found' ? (
         <FaultHighlightOverlay highlight={diagnosisState.diagnosis.highlight} image={image} />
       ) : null}
 

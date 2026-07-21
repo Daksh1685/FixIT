@@ -3,6 +3,7 @@ import {
   AdditionalImageRequest,
   DeviceDiagnosis,
   DiagnosisConfidence,
+  DiagnosisFinding,
   DiagnosisHighlight,
   ImageAnalysisResult,
 } from '../../types/diagnosis';
@@ -10,6 +11,7 @@ import { ScanImage } from '../../types/scan';
 import { apiClient, FixiTApiError, toApiError } from './client';
 
 const CONFIDENCE_VALUES: DiagnosisConfidence[] = ['medium', 'high'];
+const FINDING_VALUES: DiagnosisFinding[] = ['issue_found', 'no_issue_visible'];
 
 export async function requestDiagnosis(
   image: ScanImage,
@@ -65,6 +67,7 @@ function isDeviceDiagnosis(value: unknown): value is DeviceDiagnosis {
     isText(diagnosis.device) &&
     isText(diagnosis.brand) &&
     isText(diagnosis.model) &&
+    isFinding(diagnosis.finding) &&
     isText(diagnosis.issue) &&
     isConfidence(diagnosis.confidence) &&
     isTextList(diagnosis.causes) &&
@@ -116,6 +119,10 @@ function isAdditionalImageRequestPayload(value: unknown): value is AdditionalIma
 
 function isConfidence(value: unknown): value is DiagnosisConfidence {
   return typeof value === 'string' && CONFIDENCE_VALUES.includes(value as DiagnosisConfidence);
+}
+
+function isFinding(value: unknown): value is DiagnosisFinding {
+  return typeof value === 'string' && FINDING_VALUES.includes(value as DiagnosisFinding);
 }
 
 function isText(value: unknown): value is string {

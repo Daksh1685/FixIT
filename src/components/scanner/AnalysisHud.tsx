@@ -233,6 +233,17 @@ function HudSummary({ diagnosisState }: Pick<AnalysisHudProps, 'diagnosisState'>
     );
   }
 
+  if (diagnosisState.diagnosis.finding === 'no_issue_visible') {
+    return (
+      <View>
+        <Text style={styles.title}>No visible issue found</Text>
+        <Text style={styles.issueLabel}>VISUAL CHECK</Text>
+        <Text style={styles.issueSummary}>No visible fault was detected in this photo.</Text>
+        <Text style={styles.expandHint}>Tap to view assessment</Text>
+      </View>
+    );
+  }
+
   return (
     <View>
       <Text style={styles.title}>Diagnosis ready</Text>
@@ -250,16 +261,27 @@ function DiagnosisDetails({
   diagnosis: DeviceDiagnosis;
   followUpConversation: ReturnType<typeof useFollowUpConversation>;
 }) {
+  const hasVisibleIssue = diagnosis.finding === 'issue_found';
+
   return (
     <ScrollView
       contentContainerStyle={styles.detailsContent}
       showsVerticalScrollIndicator={false}
       style={styles.details}
     >
-      <DetailSection title="Issue" value={diagnosis.issue} />
+      <DetailSection title={hasVisibleIssue ? 'Issue' : 'Assessment'} value={diagnosis.issue} />
       <DetailSection title="Confidence" value={capitalize(diagnosis.confidence)} />
-      <DetailSection items={diagnosis.causes} title="Causes" />
-      <DetailSection items={diagnosis.fix_steps} title="Fix Steps" />
+      {hasVisibleIssue ? (
+        <>
+          <DetailSection items={diagnosis.causes} title="Causes" />
+          <DetailSection items={diagnosis.fix_steps} title="Fix Steps" />
+        </>
+      ) : (
+        <DetailSection
+          title="Recommended Next Step"
+          value="No repair is recommended from this photo. If the device has a functional problem, capture its error indicator or the affected component."
+        />
+      )}
       <DetailSection title="Safety Note" value={diagnosis.safety_note} warning />
       <FollowUpConversation
         errorMessage={followUpConversation.errorMessage}

@@ -101,18 +101,26 @@ function parseDiagnosis(output: string): DiagnosisResponse {
     causes.push(legacyCause);
   }
 
+  const finding = source.finding === 'issue_found' ? 'issue_found' : 'no_issue_visible';
+  const hasVisibleIssue = finding === 'issue_found';
+
   const normalized: DiagnosisResponse = {
     device: asText(source.device, 'Unknown', 240),
     brand: asText(source.brand, 'Unknown', 240),
     model: asText(source.model, asText(source.device, 'Unknown', 240), 240),
-    issue: asText(source.issue, 'Unknown', 240),
+    finding,
+    issue: hasVisibleIssue
+      ? asText(source.issue, 'Unknown', 240)
+      : 'No visible fault detected',
     confidence: source.confidence === 'high' ? 'high' : 'medium',
-    causes,
-    fix_steps: asTextList(source.fix_steps, 8),
+    causes: hasVisibleIssue ? causes : [],
+    fix_steps: hasVisibleIssue ? asTextList(source.fix_steps, 8) : [],
     highlight: normalizeHighlight(source.highlight),
     safety_note: asText(
       source.safety_note,
-      'Disconnect power before inspecting or repairing the device.',
+      hasVisibleIssue
+        ? 'Disconnect power before inspecting or repairing the device.'
+        : 'No repair action is recommended based on this photo.',
       240,
     ),
   };

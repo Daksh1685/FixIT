@@ -30,6 +30,7 @@ export const diagnosisResponseSchema = z
     device: shortText,
     brand: shortText,
     model: shortText,
+    finding: z.enum(['issue_found', 'no_issue_visible']),
     issue: shortText,
     confidence: z.enum(['medium', 'high']),
     causes: z.array(listItem).max(6),
@@ -63,6 +64,7 @@ export const diagnosisJsonSchema = {
     'device',
     'brand',
     'model',
+    'finding',
     'issue',
     'confidence',
     'causes',
@@ -74,6 +76,7 @@ export const diagnosisJsonSchema = {
     device: { type: 'string' },
     brand: { type: 'string' },
     model: { type: 'string' },
+    finding: { type: 'string', enum: ['issue_found', 'no_issue_visible'] },
     issue: { type: 'string' },
     confidence: { type: 'string' },
     causes: {
