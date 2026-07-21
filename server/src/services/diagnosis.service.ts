@@ -19,6 +19,12 @@ import { compressImage } from './image.service.js';
 
 const MINIMUM_DIAGNOSIS_CONFIDENCE = 70;
 
+const RECOVERABLE_DIAGNOSIS_ERROR_CODES = new Set([
+  'EMPTY_MODEL_RESPONSE',
+  'GEMINI_API_ERROR',
+  'INVALID_MODEL_RESPONSE',
+]);
+
 function parseDiagnosis(output: string): DiagnosisResponse {
   let json: unknown;
 
@@ -73,6 +79,23 @@ function createAdditionalImageRequest(triage: ImageTriage): AdditionalImageReque
   };
 }
 
+function createDiagnosisRetryRequest(): AdditionalImageRequest {
+  return {
+    confidence: 'low',
+    missing_information:
+      'The faulty component is not clear enough to produce a reliable diagnosis from this image.',
+    suggested_photo:
+      'Capture a well-lit close-up of the suspected fault, error indicator, damaged part, or the device model label.',
+  };
+}
+
+function shouldRequestAnotherImage(error: unknown): boolean {
+  return (
+    error instanceof HttpError &&
+    RECOVERABLE_DIAGNOSIS_ERROR_CODES.has(error.code)
+  );
+}
+
 export async function diagnoseDevice(uploadedImage: Buffer): Promise<ImageAnalysisResponse> {
   const compressedImage = await compressImage(uploadedImage);
   const imageBase64 = compressedImage.toString('base64');
@@ -102,22 +125,42 @@ export async function diagnoseDevice(uploadedImage: Buffer): Promise<ImageAnalys
       return createAdditionalImageRequest(triage);
     }
 
-    const response = await client.models.generateContent({
-      model: env.geminiModel,
-      contents: createVisionInput(imageBase64, 'Inspect this device image and return the requested diagnosis JSON.'),
-      config: {
-        responseJsonSchema: diagnosisJsonSchema,
-        responseMimeType: 'application/json',
-        systemInstruction: DEVICE_DIAGNOSIS_SYSTEM_PROMPT,
-        temperature: 0,
-      },
-    });
+    try {
+      const response = await client.models.generateContent({
+        model: env.geminiModel,
+        contents: createVisionInput(imageBase64, 'Inspect this device image and return the requested diagnosis JSON.'),
+        config: {
+          responseJsonSchema: diagnosisJsonSchema,
+          responseMimeType: 'application/json',
+          systemInstruction: DEVICE_DIAGNOSIS_SYSTEM_PROMPT,
+          temperature: 0,
+        },
+      });
 
-    if (!response.text) {
-      throw new HttpError(502, 'EMPTY_MODEL_RESPONSE', 'The diagnosis service did not return a result.');
+      if (!response.text) {
+        throw new HttpError(502, 'EMPTY_MODEL_RESPONSE', 'The diagnosis service did not return a result.');
+      }
+
+      return parseDiagnosis(response.text);
+    } catch (error) {
+      if (error instanceof HttpError) {
+        if (shouldRequestAnotherImage(error)) {
+          return createDiagnosisRetryRequest();
+        }
+
+        throw error;
+      }
+
+      try {
+        return mapGeminiError(error);
+      } catch (mappedError) {
+        if (shouldRequestAnotherImage(mappedError)) {
+          return createDiagnosisRetryRequest();
+        }
+
+        throw mappedError;
+      }
     }
-
-    return parseDiagnosis(response.text);
   } catch (error) {
     if (error instanceof HttpError) {
       throw error;

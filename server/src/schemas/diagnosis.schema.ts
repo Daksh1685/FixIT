@@ -59,7 +59,6 @@ export type ImageAnalysisResponse = DiagnosisResponse | AdditionalImageRequest;
  */
 export const diagnosisJsonSchema = {
   type: 'object',
-  additionalProperties: false,
   required: [
     'device',
     'brand',
@@ -76,26 +75,23 @@ export const diagnosisJsonSchema = {
     brand: { type: 'string' },
     model: { type: 'string' },
     issue: { type: 'string' },
-    confidence: { type: 'string', enum: ['medium', 'high'] },
+    confidence: { type: 'string' },
     causes: {
       type: 'array',
-      maxItems: 6,
       items: { type: 'string' },
     },
     fix_steps: {
       type: 'array',
-      maxItems: 8,
       items: { type: 'string' },
     },
     highlight: {
       type: 'object',
-      additionalProperties: false,
       required: ['x', 'y', 'width', 'height', 'label'],
       properties: {
-        x: { type: 'number', minimum: 0, maximum: 1 },
-        y: { type: 'number', minimum: 0, maximum: 1 },
-        width: { type: 'number', minimum: 0, maximum: 1 },
-        height: { type: 'number', minimum: 0, maximum: 1 },
+        x: { type: 'number' },
+        y: { type: 'number' },
+        width: { type: 'number' },
+        height: { type: 'number' },
         label: { type: 'string' },
       },
     },
