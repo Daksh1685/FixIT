@@ -1,0 +1,49 @@
+{
+  "expo": {
+    "name": "SnapFix",
+    "slug": "snapfix",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "backgroundColor": "#070B10",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.snapfix.app"
+    },
+    "android": {
+      "package": "com.snapfix.app",
+      "edgeToEdgeEnabled": true,
+      "blockedPermissions": [
+        "android.permission.RECORD_AUDIO"
+      ],
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow SnapFix to use your camera to inspect a device.",
+          "microphonePermission": false,
+          "recordAudioAndroid": false,
+          "barcodeScannerEnabled": false
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow SnapFix to access your photos so you can inspect a device image."
+        }
+      ],
+      "expo-status-bar"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "5ea65b60-10ed-4943-bd21-f3205f3a8488"
+      }
+    }
+  }
+}
